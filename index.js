@@ -45,7 +45,7 @@ myEditor.focus();
 
 // Register the custom worker
 monaco.languages.typescript.typescriptDefaults.setWorkerOptions({
-	customWorkerPath: `${location.origin}/myWorker.js`,
+	customWorkerPath: `${location.origin}${location.pathname}/myWorker.js`,
 });
 
 // Use the worker to get our completions
