@@ -58,7 +58,6 @@ monaco.languages.typescript.getTypeScriptWorker().then(tsWorker => {
 		monaco.languages.registerCompletionItemProvider('typescript', {
 	
 			async provideCompletionItems(model, position) {
-				console.log('provideCompletionItems');
 	
 				// Call our own completions method on the worker
 				const completions = await worker.getMyCompletionsAtPosition(
