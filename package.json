@@ -1,0 +1,5 @@
+{
+    "dependencies": {
+        "@monaco-editor/loader": "^1.4.0"
+    }
+}
