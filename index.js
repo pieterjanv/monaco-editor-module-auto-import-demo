@@ -1,4 +1,4 @@
-import '/node_modules/@monaco-editor/loader/lib/umd/monaco-loader.min.js';
+import './node_modules/@monaco-editor/loader/lib/umd/monaco-loader.min.js';
 
 // Initialize monaco
 const monaco = await new Promise((resolve) => {
