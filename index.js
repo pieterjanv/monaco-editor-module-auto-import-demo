@@ -23,6 +23,7 @@ const content = `/**
  * This application demonstrates how to implement auto-import of modules in the Monaco Editor,
  * by using a custom typescript worker in combination with a custom completion provider.
  * Find the code at https://github.com/pieterjanv/monaco-editor-module-auto-import-demo.
+ *
  * Try to use \`myValue\` or \`MyType\`.
  */
 
