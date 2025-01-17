@@ -1,5 +1,7 @@
 import './node_modules/@monaco-editor/loader/lib/umd/monaco-loader.min.js';
 
+monaco_loader.config({ paths: { vs: `${location.origin}${location.pathname}/node_modules/monaco-editor/min/vs` } });
+
 // Initialize monaco
 const monaco = await new Promise((resolve) => {
 	monaco_loader.init().then(monaco => resolve(monaco));
@@ -20,8 +22,8 @@ monaco.editor.createModel(
 
 // Create a dummy script "myScript"
 const content = `/**
- * This application demonstrates how to implement auto-import of modules in the Monaco Editor,
- * by using a custom typescript worker in combination with a custom completion provider.
+ * This application demonstrates how to implement auto-import of modules in the Monaco editor.
+ * Implemented using a custom typescript worker and a custom completion item provider.
  * Find the code at https://github.com/pieterjanv/monaco-editor-module-auto-import-demo.
  *
  * Try to use \`myValue\` or \`MyType\`.
