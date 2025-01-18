@@ -11,7 +11,13 @@ See the demo at [https://pieterjanv.github.io/monaco-editor-module-auto-import-d
 
 ## How it works
 
-`index.js` sets up the editor and completion provider, `myWorker.js` registers a custom typescript worker that
-overrides the default completions by calling the language service method with additional options.
+`index.js` sets up the editor, and registers a custom typescript worker and a 
+completion provider.
 
-See the comments in the code for more details.
+To register a custom worker, we provide Monaco with a url
+to a script, `myWorker.js`, providing a global factory function that 
+returns a worker that overrides the default completions by calling the 
+language service method with additional options. Monaco will call this
+factory function when it needs a worker.
+
+See the comments and follow the type hints in the code for more details.
