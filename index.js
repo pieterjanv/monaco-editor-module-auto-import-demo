@@ -1,9 +1,13 @@
 import './node_modules/@monaco-editor/loader/lib/umd/monaco-loader.min.js';
 
+const appUrl = `${location.origin}${location.pathname.replace(/\/$/, '')}`;
+
 /** @type {import('@monaco-editor/loader')['default']} */
 const loader = monaco_loader;
 
-loader.config({ paths: { vs: `${location.origin}${location.pathname}/node_modules/monaco-editor/min/vs` } });
+loader.config({ paths: {
+	vs: `${appUrl}/node_modules/monaco-editor/min/vs`,
+} });
 
 // Initialize monaco
 const monaco = await loader.init();
@@ -49,7 +53,7 @@ myEditor.focus();
 
 // Register the custom worker
 monaco.languages.typescript.typescriptDefaults.setWorkerOptions({
-	customWorkerPath: `${location.origin}${location.pathname}/myWorker.js`,
+	customWorkerPath: `${appUrl}/myWorker.js`,
 });
 
 // Get the registered worker and register the custom completion provider
@@ -67,7 +71,7 @@ monaco.languages.typescript.getTypeScriptWorker()
 					model.uri.toString(),
 					model.getOffsetAt(position),
 				);
-	
+
 				// Get range of the word to be replaced
 				// This is important for the scoring of the completions
 				const wordAtPosition = model.getWordAtPosition(position);

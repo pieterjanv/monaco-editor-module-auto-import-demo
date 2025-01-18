@@ -8,12 +8,7 @@ const customTSWorkerFactory = (TypeScriptWorker) => {
 
         // Make the default method return nothing to avoid double completions
         getCompletionsAtPosition() {
-            return {
-                entries: [],
-                isGlobalCompletion: false,
-                isMemberCompletion: false,
-                isNewIdentifierLocation: false,
-            };
+            return undefined;
         }
 
         /**
@@ -23,7 +18,7 @@ const customTSWorkerFactory = (TypeScriptWorker) => {
         getMyCompletionsAtPosition(file, position) {
 
             /**  @type {import('typescript').LanguageService} */
-            const languageService = this._languageService;
+            const languageService = this.getLanguageService();
 
             // Call the language service, which is available in the parent class
             return languageService.getCompletionsAtPosition(file, position, {
