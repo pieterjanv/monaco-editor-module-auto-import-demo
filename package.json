@@ -1,5 +1,6 @@
 {
     "dependencies": {
-        "@monaco-editor/loader": "^1.4.0"
+        "@monaco-editor/loader": "^1.4.0",
+        "typescript": "^5.7.3"
     }
 }

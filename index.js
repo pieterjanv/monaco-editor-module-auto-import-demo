@@ -1,13 +1,14 @@
 import './node_modules/@monaco-editor/loader/lib/umd/monaco-loader.min.js';
 
-monaco_loader.config({ paths: { vs: `${location.origin}${location.pathname}/node_modules/monaco-editor/min/vs` } });
+/** @type {import('@monaco-editor/loader')['default']} */
+const loader = monaco_loader;
+
+loader.config({ paths: { vs: `${location.origin}${location.pathname}/node_modules/monaco-editor/min/vs` } });
 
 // Initialize monaco
-const monaco = await new Promise((resolve) => {
-	monaco_loader.init().then(monaco => resolve(monaco));
-});
+const monaco = await loader.init();
 
-// Create a dummy module "myModule".
+// Declare a dummy module "myModule".
 // We wrap the exports in a module declaration to provide completions when
 // writing the import statement, as well as allow monaco
 // to provide us with the correct specifier when generating completions.
@@ -20,7 +21,7 @@ monaco.editor.createModel(
 	monaco.Uri.file('/myModule.d.ts'),
 );
 
-// Create a dummy script "myScript"
+// Create script to load in the editor
 const content = `/**
  * This application demonstrates how to implement auto-import of modules in the Monaco editor.
  * Implemented using a custom typescript worker and a custom completion item provider.
@@ -51,11 +52,10 @@ monaco.languages.typescript.typescriptDefaults.setWorkerOptions({
 	customWorkerPath: `${location.origin}${location.pathname}/myWorker.js`,
 });
 
-// Use the worker to get our completions
-monaco.languages.typescript.getTypeScriptWorker().then(tsWorker => {
-
-	// Get the worker for the script and the module
-	tsWorker(myScript.uri).then(async (worker) => {
+// Get the registered worker and register the custom completion provider
+monaco.languages.typescript.getTypeScriptWorker()
+	.then(tsWorker => tsWorker())
+	.then(/** @param {import('./types.d.ts').MyTypeScriptWorker} worker */ worker => {
 
 		// Register the custom completion provider
 		monaco.languages.registerCompletionItemProvider('typescript', {
@@ -82,43 +82,50 @@ monaco.languages.typescript.getTypeScriptWorker().then(tsWorker => {
 					);
 
 				// Create the suggestions
-				const suggestions = (completions?.entries ?? []).reduce((acc, completion) => {
+				const suggestions = (completions?.entries ?? []).reduce(
+					/**
+					 * @param {import('monaco-editor').languages.CompletionItem[]} acc 
+					 * @param {import('typescript').CompletionEntry} completion 
+					 */
+					(acc, completion) => {
+		
+						/** @type {import('monaco-editor').languages.CompletionItem} */
+						const suggestion = {
+							label: {
+								label: completion.name,
+								description: completion.data?.moduleSpecifier,
+							},
+							// You can use the completion kind to determine the icon
+							kind: monaco.languages.CompletionItemKind.Variable,
+							insertText: completion.insertText ?? completion.name,
+							range,
+							incomplete: true,
+						};
+		
+						// Add the import statement if the completion has a moduleSpecifier
+						// The simplest possible implementation is used here;
+						// simply add the import statement at the top of the file
+						if (completion.data?.moduleSpecifier) {
+							suggestion.additionalTextEdits = [{
+								range: new monaco.Range(
+									1, 1,
+									1, 1,
+								),
+								text: `import { ${completion.insertText ?? completion.name} } from '${completion.data?.moduleSpecifier}';\n`,
+							}];
+						}
+		
+						acc.push(suggestion);
+		
+						return acc;
+					},
+					[],
+				);
 	
-					const suggestion = {
-						label: {
-							label: completion.name,
-							description: completion?.data?.moduleSpecifier ?? undefined,
-						},
-						// You can use the completion kind to determine the icon
-						kind: monaco.languages.CompletionItemKind.Variable,
-						insertText: completion.insertText ?? completion.name,
-						range,
-						incomplete: true,
-					};
-	
-					// Add the import statement if the completion has a moduleSpecifier
-					// The simplest possible implementation is used here;
-					// simply add the import statement at the top of the file
-					if (completion?.data?.moduleSpecifier) {
-						suggestion.additionalTextEdits = [{
-							range: new monaco.Range(
-								1, 1,
-								1, 1,
-							),
-							text: `import { ${completion?.insertText ?? completion.name} } from '${completion?.data?.moduleSpecifier}';\n`,
-						}];
-					}
-	
-					acc.suggestions.push(suggestion);
-	
-					return acc;
-				}, { suggestions: [], incomplete: true });
-	
-				return suggestions;
+				return { suggestions, incomplete: true };
 			},
 		})
-	});		
-});
+	});
 
 // Set some necessary compiler options (and some optional ones)
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions({

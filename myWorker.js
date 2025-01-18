@@ -1,10 +1,10 @@
-// Register a custom typescript worker factory
-self.customTSWorkerFactory = (TypeScriptWorker) => {
-    /**
-     * The class we're extending is found at:
-     * @see{@link https://github.com/microsoft/monaco-editor/blob/a4b088e410209a27d5729713294800eba0d6b5b3/src/language/typescript/monaco.contribution.ts#L389}
-     */
-    return class MonacoTSWorker extends TypeScriptWorker {
+/**
+ * Create a custom typescript worker factory
+ * @param {import('./types').TypeScriptWorker} TypeScriptWorker 
+ * @returns {typeof import('./types').MyTypeScriptWorker}
+ */
+const customTSWorkerFactory = (TypeScriptWorker) => {
+    return class MyTypeScriptWorker extends TypeScriptWorker {
 
         // Make the default method return nothing to avoid double completions
         getCompletionsAtPosition() {
@@ -16,23 +16,23 @@ self.customTSWorkerFactory = (TypeScriptWorker) => {
             };
         }
 
-        // Add our own method to get completions
+        /**
+         * Add our own method to get completions
+         * @type {import('./types').MyTypeScriptWorker['getMyCompletionsAtPosition']}
+         */
         getMyCompletionsAtPosition(file, position) {
 
-            /**
-             * Call the language service, which is available in the parent class.
-             * The method signature supports additional arguments. The type is found at:
-             * @see{@link https://github.com/microsoft/TypeScript/blob/700ee076e515db2ef49d8cf7e4dc4bf70679575c/src/services/types.ts#L553}
-             */
-            const completions = this._languageService.getCompletionsAtPosition(file, position, {
-                /**
-                 * This makes the worker return completions for our modules; the type is found at:
-                 * @see{@link https://github.com/microsoft/TypeScript/blob/700ee076e515db2ef49d8cf7e4dc4bf70679575c/src/services/types.ts#L763}
-                 */
+            /**  @type {import('typescript').LanguageService} */
+            const languageService = this._languageService;
+
+            // Call the language service, which is available in the parent class
+            return languageService.getCompletionsAtPosition(file, position, {
+                // This makes the worker return completions for our modules
                 includeExternalModuleExports: true,
             });
-
-            return completions;
         }
     }
 }
+
+// Register the custom worker factory
+self.customTSWorkerFactory = customTSWorkerFactory;

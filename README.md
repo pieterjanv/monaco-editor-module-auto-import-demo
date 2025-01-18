@@ -1,8 +1,7 @@
 # Demo of automatic import of modules in the Monaco editor
 
-By a combination of a custom typescript worker and a completion provider,
-we can provide completions for modules that are not imported in the current file,
-and automatically import them when selected.
+By a combination of a custom typescript worker and a completion provider
+we can provide completions for modules that are not imported in the current file and automatically import them when selected.
 
 
 ## Demo
