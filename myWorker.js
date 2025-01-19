@@ -23,7 +23,7 @@ const customTSWorkerFactory = (TypeScriptWorker) => {
             // Call the language service, which is available in the parent class
             return languageService.getCompletionsAtPosition(file, position, {
                 // This makes the worker return completions for our modules
-                includeExternalModuleExports: true,
+                includeCompletionsForModuleExports: true,
             });
         }
     }
