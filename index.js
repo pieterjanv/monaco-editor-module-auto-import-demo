@@ -75,7 +75,7 @@ monaco.languages.typescript.getTypeScriptWorker()
 				// Get range of the word to be replaced
 				// This is important for the scoring of the completions
 				const wordAtPosition = model.getWordAtPosition(position);
-				const range = wordAtPosition
+				const wordAtPositionRange = wordAtPosition
 					? new monaco.Range(
 						position.lineNumber, wordAtPosition.startColumn,
 						position.lineNumber, wordAtPosition.endColumn,
@@ -92,7 +92,14 @@ monaco.languages.typescript.getTypeScriptWorker()
 					 * @param {import('typescript').CompletionEntry} completion 
 					 */
 					(acc, completion) => {
-		
+
+						const startPosition = completion.replacementSpan
+							? model.getPositionAt(completion.replacementSpan.start)
+							: wordAtPositionRange.getStartPosition();
+						const endPosition = completion.replacementSpan
+							? model.getPositionAt(completion.replacementSpan.start + completion.replacementSpan.length)
+							: wordAtPositionRange.getEndPosition();
+
 						/** @type {import('monaco-editor').languages.CompletionItem} */
 						const suggestion = {
 							label: {
@@ -102,7 +109,10 @@ monaco.languages.typescript.getTypeScriptWorker()
 							// You can use the completion kind to determine the icon
 							kind: monaco.languages.CompletionItemKind.Variable,
 							insertText: completion.insertText ?? completion.name,
-							range,
+							range: new monaco.Range(
+								startPosition.lineNumber, startPosition.column,
+								endPosition.lineNumber, endPosition.column,
+							),
 							incomplete: true,
 						};
 		
@@ -111,10 +121,7 @@ monaco.languages.typescript.getTypeScriptWorker()
 						// simply add the import statement at the top of the file
 						if (completion.data?.moduleSpecifier) {
 							suggestion.additionalTextEdits = [{
-								range: new monaco.Range(
-									1, 1,
-									1, 1,
-								),
+								range: new monaco.Range(1, 1, 1, 1),
 								text: `import { ${completion.insertText ?? completion.name} } from '${completion.data?.moduleSpecifier}';\n`,
 							}];
 						}
